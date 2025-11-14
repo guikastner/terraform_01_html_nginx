@@ -7,14 +7,14 @@ locals {
   tunnel_uuid        = local.tunnel_id_segments[length(local.tunnel_id_segments) - 1]
 }
 
-resource "cloudflare_tunnel_config" "nginx" {
+resource "cloudflare_zero_trust_tunnel_cloudflared_config" "nginx" {
   account_id = var.cloudflare_account_id
   tunnel_id  = local.tunnel_uuid
 
   config {
     ingress_rule {
       hostname = var.cloudflare_domain
-      service  = "http://127.0.0.1:${var.nginx_host_port}"
+      service  = "http://${var.tunnel_target_host}:${var.nginx_host_port}"
     }
 
     ingress_rule {
@@ -24,13 +24,13 @@ resource "cloudflare_tunnel_config" "nginx" {
 }
 
 resource "cloudflare_record" "tunnel_cname" {
-  zone_id          = var.cloudflare_zone_id
-  name             = var.cloudflare_domain
-  type             = "CNAME"
-  ttl              = 1
-  proxied          = true
-  allow_overwrite  = true
-  value            = "${local.tunnel_uuid}.cfargotunnel.com"
+  zone_id         = var.cloudflare_zone_id
+  name            = var.cloudflare_domain
+  type            = "CNAME"
+  ttl             = 1
+  proxied         = true
+  allow_overwrite = true
+  content         = "${local.tunnel_uuid}.cfargotunnel.com"
 }
 
 output "cloudflare_hostname" {

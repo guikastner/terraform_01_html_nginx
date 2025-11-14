@@ -1,5 +1,14 @@
-# Copie para "terraform.tfvars" e ajuste os campos conforme necessário.
+# Copy to "terraform.tfvars" and adjust all required fields.
 
+# Cloudflare credentials / identifiers
+cloudflare_api_token  = "cf_api_token_here"
+cloudflare_account_id = "1234567890abcdef1234567890abcdef"
+cloudflare_zone_id    = "abcdef1234567890abcdef1234567890"
+cloudflare_domain     = "app.example.com"
+cloudflare_tunnel_id  = "11111111-2222-3333-4444-555555555555"
+
+# nginx / tunnel parameters
 nginx_container_name = "nginx-html"
 nginx_host_port      = 8080
 nginx_image          = "nginx:1.27-alpine"
+tunnel_target_host   = "192.168.0.66"

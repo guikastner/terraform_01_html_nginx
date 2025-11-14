@@ -41,3 +41,9 @@ variable "nginx_image" {
   type        = string
   default     = "nginx:1.27-alpine"
 }
+
+variable "tunnel_target_host" {
+  description = "Hostname or IP that the Cloudflare Tunnel should reach (where nginx listens)."
+  type        = string
+  default     = "127.0.0.1"
+}
