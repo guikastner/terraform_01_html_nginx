@@ -1,0 +1,5 @@
+# Copie para "terraform.tfvars" e ajuste os campos conforme necessário.
+
+nginx_container_name = "nginx-html"
+nginx_host_port      = 8080
+nginx_image          = "nginx:1.27-alpine"
