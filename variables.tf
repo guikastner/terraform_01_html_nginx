@@ -19,31 +19,8 @@ variable "cloudflare_domain" {
   type        = string
 }
 
-variable "cloudflare_subdomain" {
-  description = "Subdomain (host label only) that will be created under cloudflare_domain. Leave empty to target the apex record."
-  type        = string
-  default     = ""
-}
-
-variable "cloudflare_manage_tunnel" {
-  description = "When true, this module creates its own Cloudflare Tunnel and cloudflared connector container. Set to false to reuse an existing tunnel_id."
-  type        = bool
-  default     = true
-}
-
-variable "cloudflare_tunnel_id" {
-  description = "Existing Cloudflare Tunnel ID (UUID or account_id/uuid). Required when cloudflare_manage_tunnel is false."
-  type        = string
-  default     = null
-
-  validation {
-    condition     = var.cloudflare_manage_tunnel || length(trimspace(coalesce(var.cloudflare_tunnel_id, ""))) > 0
-    error_message = "Set cloudflare_tunnel_id when cloudflare_manage_tunnel is false."
-  }
-}
-
 variable "cloudflare_managed_tunnel_name" {
-  description = "Name assigned to the Cloudflare Tunnel resource when cloudflare_manage_tunnel is true."
+  description = "Name assigned to the Cloudflare Tunnel resource managed by this module."
   type        = string
   default     = "nginx-html-tunnel"
 }
@@ -54,22 +31,10 @@ variable "nginx_container_name" {
   default     = "nginx-html"
 }
 
-variable "nginx_host_port" {
-  description = "Local host port exposed by nginx for debugging."
-  type        = number
-  default     = 8080
-}
-
 variable "nginx_image" {
   description = "Docker image for nginx."
   type        = string
   default     = "nginx:1.27-alpine"
-}
-
-variable "tunnel_target_host" {
-  description = "Hostname or IP that the Cloudflare Tunnel should reach (where nginx listens)."
-  type        = string
-  default     = "127.0.0.1"
 }
 
 variable "cloudflare_additional_tunnel_ingress" {

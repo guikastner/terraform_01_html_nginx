@@ -2,31 +2,20 @@ provider "cloudflare" {
   api_token = var.cloudflare_api_token
 }
 
-locals {
-  provided_tunnel_value    = trimspace(coalesce(var.cloudflare_tunnel_id, ""))
-  provided_tunnel_segments = local.provided_tunnel_value == "" ? [] : split("/", local.provided_tunnel_value)
-  provided_tunnel_uuid     = local.provided_tunnel_value == "" ? null : local.provided_tunnel_segments[length(local.provided_tunnel_segments) - 1]
-}
-
 resource "random_id" "cloudflare_tunnel_secret" {
-  count       = var.cloudflare_manage_tunnel ? 1 : 0
   byte_length = 32
 }
 
 resource "cloudflare_zero_trust_tunnel_cloudflared" "nginx" {
-  count      = var.cloudflare_manage_tunnel ? 1 : 0
   account_id = var.cloudflare_account_id
   name       = var.cloudflare_managed_tunnel_name
   config_src = "cloudflare"
-  secret     = random_id.cloudflare_tunnel_secret[0].b64_std
+  secret     = random_id.cloudflare_tunnel_secret.b64_std
 }
 
 locals {
-  managed_tunnel_uuid = var.cloudflare_manage_tunnel ? cloudflare_zero_trust_tunnel_cloudflared.nginx[0].id : null
-  tunnel_uuid         = coalesce(local.managed_tunnel_uuid, local.provided_tunnel_uuid)
-
-  origin_service_host = var.cloudflare_manage_tunnel ? var.nginx_container_name : var.tunnel_target_host
-  origin_service_port = var.cloudflare_manage_tunnel ? 80 : var.nginx_host_port
+  origin_service_host = var.nginx_container_name
+  origin_service_port = 80
 }
 
 locals {
@@ -82,7 +71,7 @@ locals {
 
 resource "cloudflare_zero_trust_tunnel_cloudflared_config" "nginx" {
   account_id = var.cloudflare_account_id
-  tunnel_id  = local.tunnel_uuid
+  tunnel_id  = cloudflare_zero_trust_tunnel_cloudflared.nginx.id
 
   config {
     dynamic "ingress_rule" {
@@ -103,7 +92,7 @@ resource "cloudflare_record" "tunnel_cname" {
   ttl             = 1
   proxied         = true
   allow_overwrite = true
-  content         = var.cloudflare_manage_tunnel ? cloudflare_zero_trust_tunnel_cloudflared.nginx[0].cname : "${local.tunnel_uuid}.cfargotunnel.com"
+  content         = cloudflare_zero_trust_tunnel_cloudflared.nginx.cname
 }
 
 output "cloudflare_hostname" {
@@ -113,5 +102,5 @@ output "cloudflare_hostname" {
 
 output "cloudflare_tunnel_id" {
   description = "UUID of the Cloudflare Tunnel currently managed or referenced by this module."
-  value       = local.tunnel_uuid
+  value       = cloudflare_zero_trust_tunnel_cloudflared.nginx.id
 }

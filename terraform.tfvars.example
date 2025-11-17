@@ -8,18 +8,15 @@ cloudflare_domain     = "app.example.com"
 
 # nginx / tunnel parameters
 nginx_container_name = "nginx-html"
-nginx_host_port      = 8080
 nginx_image          = "nginx:1.27-alpine"
-tunnel_target_host   = "192.168.0.66"
 
-# Module-managed tunnel & connector (default)
-cloudflare_manage_tunnel       = true
+# Module-managed tunnel & connector
 cloudflare_managed_tunnel_name = "nginx-html-tunnel"
 cloudflared_container_name     = "cloudflared-nginx"
 cloudflared_image              = "cloudflare/cloudflared:latest"
 
 # Optional: customize the fallback (catch-all) ingress service
-cloudflare_catch_all_ingress_service = "http://192.168.0.66:8080"
+cloudflare_catch_all_ingress_service = "http://nginx-html:80"
 
 # Optional: keep other ingress rules that already exist in this tunnel
 cloudflare_additional_tunnel_ingress = [
@@ -33,7 +30,3 @@ cloudflare_additional_tunnel_ingress = [
     path     = "/metrics"
   }
 ]
-
-# To reuse an existing tunnel instead, override:
-# cloudflare_manage_tunnel = false
-# cloudflare_tunnel_id     = "account_id/uuid-or-uuid"
