@@ -6,3 +6,5 @@
 terraform.tfvars
 *.tfstate
 *.tfstate.*
+
+.cloudflared/*

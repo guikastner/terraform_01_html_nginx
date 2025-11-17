@@ -5,10 +5,35 @@ cloudflare_api_token  = "cf_api_token_here"
 cloudflare_account_id = "1234567890abcdef1234567890abcdef"
 cloudflare_zone_id    = "abcdef1234567890abcdef1234567890"
 cloudflare_domain     = "app.example.com"
-cloudflare_tunnel_id  = "11111111-2222-3333-4444-555555555555"
 
 # nginx / tunnel parameters
 nginx_container_name = "nginx-html"
 nginx_host_port      = 8080
 nginx_image          = "nginx:1.27-alpine"
 tunnel_target_host   = "192.168.0.66"
+
+# Module-managed tunnel & connector (default)
+cloudflare_manage_tunnel       = true
+cloudflare_managed_tunnel_name = "nginx-html-tunnel"
+cloudflared_container_name     = "cloudflared-nginx"
+cloudflared_image              = "cloudflare/cloudflared:latest"
+
+# Optional: customize the fallback (catch-all) ingress service
+cloudflare_catch_all_ingress_service = "http://192.168.0.66:8080"
+
+# Optional: keep other ingress rules that already exist in this tunnel
+cloudflare_additional_tunnel_ingress = [
+  {
+    hostname = "api.example.com"
+    service  = "http://127.0.0.1:5000"
+  },
+  {
+    hostname = "grafana.example.com"
+    service  = "http://192.168.0.50:3000"
+    path     = "/metrics"
+  }
+]
+
+# To reuse an existing tunnel instead, override:
+# cloudflare_manage_tunnel = false
+# cloudflare_tunnel_id     = "account_id/uuid-or-uuid"
